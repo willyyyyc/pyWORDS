@@ -16,12 +16,36 @@ try:
 except NoEntry:
     print("Could not find matching entry in dictionary.")
 else:
-    all_parts = ['Noun', 'Verb', 'Adjective', 'Adverb', 'Preposition', 'Conjunction', 'Interjection']
-    parts_of_speech = [] #list for now to check functionality
-    for part_of_speech in soup.select('span.mw-headline'):
-        if part_of_speech.text in all_parts and part_of_speech.text not in parts_of_speech:
-            parts_of_speech.append(part_of_speech.text)
-            print(part_of_speech.text)
 
-    print(len(parts_of_speech))
+    all_parts = [
+        'Noun', 
+        'Verb', 
+        'Adjective', 
+        'Adverb', 
+        'Preposition', 
+        'Conjunction', 
+        'Interjection'
+        ]
 
+    forms = []
+    for form in soup.select('span.mw-headline'):
+        if form.text in all_parts and form.text not in forms:
+            forms.append(form.text)
+            block = [form.text]
+            elem = form.parent
+            while True:
+                if elem.name == 'p':
+                    print(elem.text)
+                    block.append(elem.text)
+                if elem.name == 'ol':
+                    list_of_def = {
+                        'list': elem
+                    }
+                    block.append(list_of_def)
+                    forms.append(block)
+                    break
+                else:
+                    elem = elem.next_sibling.next_sibling
+  
+
+    
