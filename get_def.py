@@ -1,6 +1,6 @@
 import requests
-from bs4 import BeautifulSoup, SoupStrainer
-import json
+from bs4 import BeautifulSoup
+import re
 
 class NoEntry(Exception):
     pass
@@ -44,18 +44,38 @@ else:
             elem = form.parent
             while True:
                 if elem.name == 'p':
-                    print(elem.text)
                     section.append(elem.text)
                 if elem.name == 'ol':
-                    list_of_def = {
-                        'list': elem
-                    }
+                    for ul in elem.select('ul'):
+                        ul.decompose()
+                    for dd in elem.select('dd'):
+                        dd.decompose()
+                    for dl in elem.select('dl'):
+                        dl.decompose()
+
+                    list_of_def = []
+                    for li in elem.select('li'):
+                        li = re.sub(r'\n\s*\n', r'\n\n', li.get_text().strip(), flags=re.M)
+                        list_of_def.append(li)
+                   
                     section.append(list_of_def)
                     defintion.append(section)
                     break
                 else:
                     elem = elem.next_sibling.next_sibling
+    
+    # Display word and its definition.
+    print("Definition of",word,":\n")
+    i = 0
+    while i < len(defintion):
+        print("\n")
+        print(defintion[i][0])
+        print(defintion[i][1])
+        j = 1
+        for li in defintion[i][2]:
+            print("  ",str(j),li)
+            j+=1
+        i+=1
   
 # remove all children from dom or <dl>
-print()
-    
+# note: make a flag that returns shortened definiton
